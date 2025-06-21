@@ -1,0 +1,4 @@
+public/
+*.lock
+/.direnv
+node_modules

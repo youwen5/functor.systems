@@ -1,0 +1,25 @@
+baseURL = "https://functor.systems"
+title = "functor.systems"
+languageCode = "en"
+DefaultContentLanguage = "en"
+enableInlineShortcodes = true
+footnoteReturnLinkContents = "^"
+
+[pagination]
+pagerSize = 3
+
+[taxonomies]
+category = "categories"
+tag = "tags"
+series = "series"
+
+[markup]
+[markup.goldmark]
+[markup.goldmark.renderer]
+unsafe = true
+[markup.highlight]
+style = "paraiso-dark"
+
+[Params]
+twittercard = true
+opengraph = true
