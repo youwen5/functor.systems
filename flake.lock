@@ -1,0 +1,45 @@
+{
+  "nodes": {
+    "miso": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1756182711,
+        "narHash": "sha256-L+OyGaSNMdrg3IEWjIHoIx/wjRNIYYRkv0TAYHnQAFM=",
+        "owner": "dmjio",
+        "repo": "miso",
+        "rev": "2261b8252cc362ea8ec9f3ff2dd8bc27c3df1fee",
+        "type": "github"
+      },
+      "original": {
+        "owner": "dmjio",
+        "ref": "master",
+        "repo": "miso",
+        "type": "github"
+      }
+    },
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1756125398,
+        "narHash": "sha256-XexyKZpf46cMiO5Vbj+dWSAXOnr285GHsMch8FBoHbc=",
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "3b9f00d7a7bf68acd4c4abb9d43695afb04e03a5",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nixos",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "root": {
+      "inputs": {
+        "miso": "miso",
+        "nixpkgs": "nixpkgs"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}
