@@ -21,12 +21,11 @@
         system:
         let
           pkgs = import nixpkgs { inherit system; };
-          ghcjs = pkgs.pkgsCross.ghcjs.buildPackages;
         in
         {
           default = self.packages.${system}.website-unwrapped;
-          miso = ghcjs.haskell.ghcjs.haskellPackages.callPackage "miso" miso { };
-          website-unwrapped = ghcjs.haskellPackages.callCabal2nix "website" ./. {
+          miso = pkgs.haskellPackages.callCabal2nix "miso" miso { };
+          website-unwrapped = pkgs.haskellPackages.callCabal2nix "website" ./. {
             inherit (self.packages.${system}) miso;
           };
         }
@@ -54,6 +53,7 @@
                 haskellPackages.haskell-language-server
                 emscripten
                 nodejs
+                http-server
               ])
               ++ [ ghcjs.ghc ];
           };

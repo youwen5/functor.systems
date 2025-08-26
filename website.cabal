@@ -17,8 +17,8 @@ common wasm
       -DWASM
 
 executable website
-  -- import:
-  --   wasm
+  import:
+    wasm
 
   main-is:
     Main.hs
