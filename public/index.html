@@ -24,11 +24,25 @@
 	font-size: 1.2rem;
       };
     }
+    .dark-only {
+      display: none;
+    }
+    @media (prefers-color-scheme: dark) {
+      .light-only {
+	display: none;
+      }
+      .dark-only {
+	display: block;
+      }
+    }
   </style>
 </head>
 
 <body class="latex-dark-auto text-justify">
-  <h1>functor.systems</h1>
+  <h1>
+    <img src="https://code.functor.systems/functor.systems/identity/raw/branch/main/assets/canonical/hi-res-transparent-text.webp" alt="functor.systems logo, a torus with three arrows pointing across." style="max-width: 400px; width: 100%; margin-left: auto; margin-right: auto;" class="light-only">
+    <img src="https://code.functor.systems/functor.systems/identity/raw/branch/main/assets/canonical/hi-res-transparent-text-dark.webp" alt="functor.systems logo, a torus with three arrows pointing across." style="max-width: 400px; width: 100%; margin-left: auto; margin-right: auto;" class="dark-only">
+  </h1>
   <div class="definition">A <a href="https://ncatlab.org/nlab/show/homotopy+coherent+diagram" target="_blank">homotopy-coherent</a> collective of free software hackers.</div>
   <div class="theorem">
 	functor.systems maintains vital digital infrastructure for its community of hackers.
