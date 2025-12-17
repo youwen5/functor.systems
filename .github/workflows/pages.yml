@@ -34,8 +34,7 @@ jobs:
       - uses: DeterminateSystems/nix-installer-action@main
       - uses: DeterminateSystems/magic-nix-cache-action@main
       - run: |
-          nix develop
-          just full-build
+          nix develop -c 'just'
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
