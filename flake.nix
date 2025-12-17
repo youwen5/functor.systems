@@ -1,38 +1,65 @@
 {
-  inputs.treefmt-nix.url = "github:numtide/treefmt-nix";
-  inputs.systems.url = "github:nix-systems/default";
+  description = "A barebones template using miso.";
+
+  inputs = {
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    miso.url = "github:dmjio/miso/master";
+    miso.flake = false;
+  };
 
   outputs =
     {
       self,
       nixpkgs,
-      systems,
-      treefmt-nix,
+      miso,
     }:
     let
-      # Small tool to iterate over each systems
-      eachSystem = f: nixpkgs.lib.genAttrs (import systems) (system: f nixpkgs.legacyPackages.${system});
-
-      treefmtConfig = {
-        # Used to find the project root
-        projectRootFile = "flake.nix";
-        # Enable the terraform formatter
-        programs.prettier.enable = true;
-        settings.global.excludes = [
-          "*.png"
-          "*.woff2"
-        ];
-      };
-
-      # Eval the treefmt modules from ./treefmt.nix
-      treefmtEval = eachSystem (pkgs: treefmt-nix.lib.evalModule pkgs treefmtConfig);
+      forAllSystems = nixpkgs.lib.genAttrs nixpkgs.lib.platforms.linux;
     in
     {
-      # for `nix fmt`
-      formatter = eachSystem (pkgs: treefmtEval.${pkgs.system}.config.build.wrapper);
-      # for `nix flake check`
-      checks = eachSystem (pkgs: {
-        formatting = treefmtEval.${pkgs.system}.config.build.check self;
-      });
+      packages = forAllSystems (
+        system:
+        let
+          pkgs = import nixpkgs { inherit system; };
+        in
+        {
+          default = self.packages.${system}.website-unwrapped;
+          miso = pkgs.haskellPackages.callCabal2nix "miso" miso { };
+          website-unwrapped = pkgs.haskellPackages.callCabal2nix "website" ./. {
+            inherit (self.packages.${system}) miso;
+          };
+        }
+      );
+
+      devShells = forAllSystems (
+        system:
+        let
+          pkgs = import nixpkgs { inherit system; };
+          ghcjs = pkgs.pkgsCross.ghcjs.buildPackages;
+        in
+        {
+          default = ghcjs.haskellPackages.shellFor {
+            packages = hsPkgs: [
+              hsPkgs.distribution-nixpkgs
+              self.packages.${system}.default
+            ];
+
+            withHoogle = true;
+
+            nativeBuildInputs =
+              (with pkgs; [
+                cabal-install
+                haskellPackages.cabal-gild
+                haskellPackages.haskell-language-server
+                emscripten
+                nodejs
+                http-server
+                just
+                rsync
+              ])
+              ++ [ ghcjs.ghc ];
+          };
+        }
+      );
     };
 }

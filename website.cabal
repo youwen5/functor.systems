@@ -1,0 +1,32 @@
+cabal-version: 3.4
+name: website
+version: 0.1.0.0
+synopsis: Sample miso app
+category: Web
+license: GPL-2.0-or-later
+maintainer: Youwen Wu <youwen@functor.systems>
+
+common wasm
+  if arch(wasm32)
+    ghc-options:
+      -no-hs-main
+      -optl-mexec-model=reactor
+      "-optl-Wl,--export=hs_start"
+
+    cpp-options:
+      -DWASM
+
+executable website
+  import:
+    wasm
+
+  main-is:
+    Main.hs
+
+  build-depends:
+    base <5,
+    lens <=5.4,
+    miso,
+
+  default-language:
+    Haskell2010
