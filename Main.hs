@@ -74,6 +74,7 @@ updateModel = \case
 viewModel :: Model -> View Model Action
 viewModel x =
     H.div_
+        [] 
         [ H.h1_
             []
             [ H.img_
