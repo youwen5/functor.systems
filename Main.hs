@@ -74,7 +74,6 @@ updateModel = \case
 viewModel :: Model -> View Model Action
 viewModel x =
     H.div_
-        [P.class_ "latex-dark-auto text-justify"]
         [ H.h1_
             []
             [ H.img_
