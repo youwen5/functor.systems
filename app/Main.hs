@@ -9,8 +9,8 @@ module Main where
 
 ----------------------------------------------------------------------------
 import Miso
-import qualified Miso.Html as H
-import qualified Miso.Html.Property as P
+import Miso.Html qualified as H
+import Miso.Html.Property qualified as P
 import Miso.Lens
 
 ----------------------------------------------------------------------------
@@ -74,7 +74,7 @@ updateModel = \case
 viewModel :: Model -> View Model Action
 viewModel x =
     H.div_
-        [] 
+        []
         [ H.h1_
             []
             [ H.img_
@@ -270,7 +270,7 @@ viewModel x =
             ]
         , H.p_
             []
-            [ text "If you’d like to request access to any infrastructure—or a membership—please contact the webmaster:"
+            [ text "If you’d like to request access to any infrastructure—or a membership—please contact the webmaster: "
             , H.code_ [] [H.a_ [P.href_ "mailto:youwen@functor.systems"] [text "youwen@functor.systems"]]
             ]
         , H.p_ [] [text "In general, any friends of existing members or anyone with a reasonable interest in our projects will be granted membership and/or infra access upon request."]
@@ -279,13 +279,13 @@ viewModel x =
             []
             [ text "This website was written in Haskell in the "
             , H.a_ [P.href_ "https://haskell-miso.org/"] [text "miso"]
-            , text "web framework, and compiled to JavaScript via the GHCjs backend."
+            , text " web framework, and transpiled to JavaScript via the GHCjs backend."
             ]
         , H.p_
             []
             [ text "Suggest an edit to this page on "
-            , H.a_ [P.href_ "https://code.functor.systems/functor.systems/website/_edit/main/public/index.html", P.target_ "_blank"] [text "code.functor.systems"]
-            , text ". Note that a login is required—please request an account through the contact information above if you don’t have one."
+            , H.a_ [P.href_ "https://code.functor.systems/functor.systems/website/src/branch/main/app/Main.hs", P.target_ "_blank"] [text "code.functor.systems"]
+            , text ". Note that a login is required—please request an account through the contact information above if you don’t have one. Alternatively, clone the repository and send patches via email to the webmaster."
             ]
         ]
 
