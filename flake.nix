@@ -32,7 +32,10 @@
                 haskell-language-server = { };
               };
               # Non-Haskell shell tools go here
-              shell.buildInputs = with pkgs; [ nixpkgs-fmt ];
+              shell.buildInputs = with pkgs; [
+                nixpkgs-fmt
+                just
+              ];
 
               # This adds `js-unknown-ghcjs-cabal` to the shell.
               shell.crossPlatforms = p: [ p.ghcjs ];
