@@ -1,57 +1,77 @@
-cabal-version:      3.4
-name:               website
-version:            0.1.0.0
-synopsis:           The website for functor.systems
-description:        The website for functor.systems
-license:            MIT
-license-file:       LICENSE
-author:             Youwen Wu
-maintainer:         youwen@functor.systems
-copyright:          functor.systems @ 2025
-category:           Web
-build-type:         Simple
-extra-doc-files:    CHANGELOG.md
+cabal-version: 3.4
+name: website
+version: 0.1.0.0
+synopsis: The website for functor.systems
+description: The website for functor.systems
+license: MIT
+license-file: LICENSE
+author: Youwen Wu
+maintainer: youwen@functor.systems
+copyright: functor.systems @ 2025
+category: Web
+build-type: Simple
+extra-doc-files: CHANGELOG.md
 
 flag interactive
   default:
     False
+
   manual:
     True
 
 common warnings
   ghc-options:
-    -funbox-strict-fields -O2 -ferror-spans -fspecialise-aggressively -Wall
+    -funbox-strict-fields
+    -O2
+    -ferror-spans
+    -fspecialise-aggressively
+    -Wall
 
 common options
   if arch(wasm32)
     ghc-options:
-      -no-hs-main -optl-mexec-model=reactor "-optl-Wl,--export=hs_start"
+      -no-hs-main
+      -optl-mexec-model=reactor
+      "-optl-Wl,--export=hs_start"
+
     cpp-options:
       -DWASM
-    if flag (interactive)
+
+    if flag(interactive)
       cpp-options:
         -DINTERACTIVE
 
   if arch(javascript)
-     ld-options:
-       -sEXPORTED_RUNTIME_METHODS=HEAP8
+    ld-options:
+      -sEXPORTED_RUNTIME_METHODS=HEAP8
 
 executable website
   import:
     options, warnings
+
   main-is:
     Main.hs
-  build-depends: 
-    base, containers, miso
+
+  build-depends:
+    base,
+    containers,
+    miso,
+
   hs-source-dirs:
     app
+
   default-language:
     GHC2024
 
 executable styles
   hs-source-dirs:
     app
+
   main-is:
     Styles.hs
+
   build-depends:
-    base, clay, text, ReadArgs
+    ReadArgs,
+    base,
+    clay,
+    text,
