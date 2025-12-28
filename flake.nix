@@ -1,65 +1,79 @@
 {
-  description = "A barebones template using miso.";
-
-  inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-    miso.url = "github:dmjio/miso/master";
-    miso.flake = false;
-  };
-
+  description = "divinely inspired nix template";
+  inputs.haskellNix.url = "git+https://code.functor.systems/youwen/haskell.nix";
+  inputs.nixpkgs.follows = "haskellNix/nixpkgs-unstable";
+  inputs.flake-utils.url = "github:numtide/flake-utils";
   outputs =
     {
       self,
       nixpkgs,
-      miso,
+      flake-utils,
+      haskellNix,
     }:
-    let
-      forAllSystems = nixpkgs.lib.genAttrs nixpkgs.lib.platforms.linux;
-    in
-    {
-      packages = forAllSystems (
-        system:
-        let
-          pkgs = import nixpkgs { inherit system; };
-        in
-        {
-          default = self.packages.${system}.website-unwrapped;
-          miso = pkgs.haskellPackages.callCabal2nix "miso" miso { };
-          website-unwrapped = pkgs.haskellPackages.callCabal2nix "website" ./. {
-            inherit (self.packages.${system}) miso;
-          };
-        }
-      );
+    flake-utils.lib.eachSystem [ "x86_64-linux" "x86_64-darwin" ] (
+      system:
+      let
+        overlays = [
+          haskellNix.overlay
+          (final: _prev: {
+            # stdenv = _prev.lib.mkMerge [
+            #   { hostPlatform.extensions.executable = ".jsexe"; }
+            #   _prev.stdenv
+            # ];
+            # This overlay adds our project to pkgs
+            misoProject = final.haskell-nix.project' {
+              src = ./.;
+              compiler-nix-name = "ghc9122";
+              # This is used by `nix develop .` to open a shell for use with
+              # `cabal`, `hlint` and `haskell-language-server`
+              shell.tools = {
+                cabal = { };
+                hlint = { };
+                haskell-language-server = { };
+              };
+              # Non-Haskell shell tools go here
+              shell.buildInputs = with pkgs; [ nixpkgs-fmt ];
 
-      devShells = forAllSystems (
-        system:
-        let
-          pkgs = import nixpkgs { inherit system; };
-          ghcjs = pkgs.pkgsCross.ghcjs.buildPackages;
-        in
-        {
-          default = ghcjs.haskellPackages.shellFor {
-            packages = hsPkgs: [
-              hsPkgs.distribution-nixpkgs
-              self.packages.${system}.default
-            ];
+              # This adds `js-unknown-ghcjs-cabal` to the shell.
+              shell.crossPlatforms = p: [ p.ghcjs ];
+            };
+          })
+        ];
+        pkgs = import nixpkgs {
+          inherit system overlays;
+          inherit (haskellNix) config;
+        };
+        flake = pkgs.misoProject.flake {
+          # This adds support for `nix build .#javascript-unknown-ghcjs:app:exe:app`
+          crossPlatforms = p: [
+            p.ghcjs
+          ];
+        };
+      in
+      flake
+      // {
+        packages.default = pkgs.stdenvNoCC.mkDerivation {
+          name = "website";
 
-            withHoogle = true;
+          src = ./static;
 
-            nativeBuildInputs =
-              (with pkgs; [
-                cabal-install
-                haskellPackages.cabal-gild
-                haskellPackages.haskell-language-server
-                emscripten
-                nodejs
-                http-server
-                just
-                rsync
-              ])
-              ++ [ ghcjs.ghc ];
-          };
-        }
-      );
-    };
+          buildPhase = ''
+            mkdir -p $out
+            cp -r * $out
+
+            cp -L ${flake.packages."javascript-unknown-ghcjs:website:exe:website"}/bin/website $out/all.js
+          '';
+        };
+        # packages.default = builtins.trace (pkgs.misoProject.flake { }).packages "";
+        # Built by `nix build .`
+        # packages = {
+        #   wasm = flake.packages."wasi32:app:exe:app";
+        #   ghcjs = flake.packages."javascript-unknown-ghcjs:app:exe:app";
+        # };
+      }
+    );
+  nixConfig = {
+    extra-substituters = [ "https://cache.iog.io" ];
+    extra-trusted-public-keys = [ "hydra.iohk.io:f/Ea+s+dFdN+3Y/G+FDgSq+a5NEWhJGzdjvKNGv0/EQ=" ];
+  };
 }
