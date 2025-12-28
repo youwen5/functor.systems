@@ -4,7 +4,7 @@ default: setup make-styles
   cp "$(javascript-unknown-ghcjs-cabal list-bin website)" out/all.js
 
 make-styles:
-  cabal run styles
+  cabal run styles -- out/rendered.css
 
 setup:
   mkdir -p out
