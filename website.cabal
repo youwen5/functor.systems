@@ -42,8 +42,16 @@ executable website
   main-is:
     Main.hs
   build-depends: 
-    base < 5, containers >= 0.7, miso >= 1.9
+    base, containers, miso
   hs-source-dirs:
     app
   default-language:
-    Haskell2010
+    GHC2024
+
+executable styles
+  hs-source-dirs:
+    app
+  main-is:
+    Styles.hs
+  build-depends:
+    base, clay, text, ReadArgs

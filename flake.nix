@@ -35,6 +35,8 @@
               shell.buildInputs = with pkgs; [
                 nixpkgs-fmt
                 just
+                nodejs
+                live-server
               ];
 
               # This adds `js-unknown-ghcjs-cabal` to the shell.
@@ -48,28 +50,33 @@
         };
         flake = pkgs.misoProject.flake {
           # This adds support for `nix build .#javascript-unknown-ghcjs:app:exe:app`
-          crossPlatforms = p: [
-            p.ghcjs
-          ];
+          crossPlatforms = p: [ p.ghcjs ];
         };
       in
       flake
       // {
-        packages.default = pkgs.stdenvNoCC.mkDerivation {
-          name = "website";
+        packages = flake.packages // {
+          default = pkgs.stdenvNoCC.mkDerivation {
+            name = "website";
 
-          src = ./.;
+            src = ./.;
 
-          nativeBuildInputs = [ pkgs.swc ];
+            nativeBuildInputs = [
+              pkgs.swc
+              flake.packages."website:exe:styles"
+            ];
 
-          buildPhase = ''
-            mkdir -p $out
-            cp -r ./static/* $out
+            buildPhase = ''
+              mkdir -p $out
+              cp -r ./static/* $out
 
-            swc compile ${
-              flake.packages."javascript-unknown-ghcjs:website:exe:website"
-            }/bin/website --out-file $out/all.js --config-file ./.swcrc
-          '';
+              styles "$out/rendered.css"
+
+              swc compile ${
+                flake.packages."javascript-unknown-ghcjs:website:exe:website"
+              }/bin/website --out-file $out/all.js --config-file ./.swcrc
+            '';
+          };
         };
         # packages.default = builtins.trace (pkgs.misoProject.flake { }).packages "";
         # Built by `nix build .`
