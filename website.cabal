@@ -44,6 +44,14 @@ common options
   if arch(javascript)
     ld-options:
       -sEXPORTED_RUNTIME_METHODS=HEAP8
+  -- if !arch(javascript)
+  --   build-depends:
+  --     liquidhaskell
+  default-language:
+    GHC2024
+
+  hs-source-dirs:
+    app
 
 executable website
   import:
@@ -56,17 +64,9 @@ executable website
     base,
     containers,
     miso,
-
-  hs-source-dirs:
-    app
-
-  default-language:
-    GHC2024
+    servant,
 
 executable styles
-  hs-source-dirs:
-    app
-
   main-is:
     Styles.hs
 

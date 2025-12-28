@@ -16,6 +16,13 @@
         overlays = [
           haskellNix.overlay
           (final: _prev: {
+            haskell-nix = _prev.haskell-nix // {
+              extraPkgconfigMappings = _prev.haskell-nix.extraPkgconfigMappings // {
+                # String pkgconfig-depends names are mapped to lists of Nixpkgs
+                # package names
+                "z3" = [ "z3" ];
+              };
+            };
             # stdenv = _prev.lib.mkMerge [
             #   { hostPlatform.extensions.executable = ".jsexe"; }
             #   _prev.stdenv

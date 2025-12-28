@@ -8,10 +8,15 @@
 module Main where
 
 ----------------------------------------------------------------------------
-import Miso
+
+import Data.Proxy
+import Miso hiding (URI)
 import Miso.Html qualified as H
+import Miso.Html.Event qualified as E
 import Miso.Html.Property qualified as P
 import Miso.Lens
+import Servant.API
+import Servant.Links
 
 ----------------------------------------------------------------------------
 
@@ -28,9 +33,8 @@ counter = lens _counter $ \record field -> record{_counter = field}
 
 -- | Sum type for App events
 data Action
-    = AddOne
-    | SubtractOne
-    | SayHelloWorld
+    = SetURI Servant.Links.URI
+    | PushURI Servant.Links.URI
     deriving (Show, Eq)
 
 ----------------------------------------------------------------------------
@@ -53,6 +57,21 @@ app = component emptyModel updateModel viewModel
 
 ----------------------------------------------------------------------------
 
+type API = Matrix :<|> Home
+type Home = App Model Action
+type Matrix = "matrix" :> App Model Action
+
+----------------------------------------------------------------------------
+
+aboutUri, homeUri :: URI
+aboutUri :<|> homeUri = allLinks' linkURI (Proxy @API)
+
+goHome, goAbout :: Action
+goHome = PushURI homeUri
+goAbout = PushURI aboutUri
+
+----------------------------------------------------------------------------
+
 -- | Empty application state
 emptyModel :: Model
 emptyModel = Model 0
@@ -62,231 +81,241 @@ emptyModel = Model 0
 -- | Updates model, optionally introduces side effects
 updateModel :: Action -> Transition Model Action
 updateModel = \case
-    AddOne -> counter += 1
-    SubtractOne -> counter -= 1
-    SayHelloWorld -> io_ $ do
-        alert "Hello World"
-        consoleLog "Hello World"
+    SetURI u -> this .= u
+    PushURI u -> io_ (pushURI u)
 
 ----------------------------------------------------------------------------
 
 -- | Constructs a virtual DOM from a model
 viewModel :: Model -> View Model Action
-viewModel x =
-    H.div_
-        []
-        [ H.h1_
+viewModel uri =
+    case route (Proxy :: Proxy API) (matrix :<|> home) id uri of
+        Left _ -> the404
+        Right v -> [v]
+  where
+    home (_ :: Model) =
+        H.div_
             []
-            [ H.img_
-                [ P.src_ "https://code.functor.systems/functor.systems/identity/raw/branch/main/assets/canonical/hi-res-transparent-text.webp"
-                , P.alt_ "functor.systems logo, a torus with three arrows pointing across"
-                , P.class_ "main-logo light-only"
+            [ H.h1_
+                []
+                [ H.img_
+                    [ P.src_ "https://code.functor.systems/functor.systems/identity/raw/branch/main/assets/canonical/hi-res-transparent-text.webp"
+                    , P.alt_ "functor.systems logo, a torus with three arrows pointing across"
+                    , P.class_ "main-logo light-only"
+                    ]
+                , H.img_
+                    [ P.src_ "https://code.functor.systems/functor.systems/identity/raw/branch/main/assets/canonical/hi-res-transparent-text-dark.webp"
+                    , P.alt_ "functor.systems logo, a torus with three arrows pointing across"
+                    , P.class_ "main-logo dark-only"
+                    ]
                 ]
-            , H.img_
-                [ P.src_ "https://code.functor.systems/functor.systems/identity/raw/branch/main/assets/canonical/hi-res-transparent-text-dark.webp"
-                , P.alt_ "functor.systems logo, a torus with three arrows pointing across"
-                , P.class_ "main-logo dark-only"
+            , H.div_
+                [P.class_ "definition"]
+                [ text "A "
+                , H.a_
+                    [ P.target_ "_blank"
+                    , P.href_ "https://ncatlab.org/nlab/show/homotopy+coherent+diagram"
+                    ]
+                    [text "homotopy-coherent"]
+                , text " collective of free software hackers. We are a "
+                , H.em_ [] [text "proper subset"]
+                , text " of the "
+                , H.a_ [P.href_ "https://www.mit.edu/~ajzd/opencompute/"] [text " MIT OpenCompute Laboratory"]
+                , text "."
                 ]
-            ]
-        , H.div_
-            [P.class_ "definition"]
-            [ text "A "
-            , H.a_
-                [ P.target_ "_blank"
-                , P.href_ "https://ncatlab.org/nlab/show/homotopy+coherent+diagram"
+            , H.div_
+                [P.class_ "theorem"]
+                [ text "functor.systems maintains vital digital infrastructure for its community of hackers."
                 ]
-                [text "homotopy-coherent"]
-            , text " collective of free software hackers. We are a "
-            , H.em_ [] [text "proper subset"]
-            , text " of the "
-            , H.a_ [P.href_ "https://www.mit.edu/~ajzd/opencompute/"] [text " MIT OpenCompute Laboratory"]
-            , text "."
-            ]
-        , H.div_
-            [P.class_ "theorem"]
-            [ text "functor.systems maintains vital digital infrastructure for its community of hackers."
-            ]
-        , H.div_
-            [P.class_ "proof"]
-            [ "We operate the following."
+            , H.div_
+                [P.class_ "proof"]
+                [ "We operate the following."
+                , H.table_
+                    [P.class_ "services-table"]
+                    [ H.tr_
+                        []
+                        [ H.th_ [] [text "Service"]
+                        , H.th_ [] [text "URL"]
+                        , H.th_ [] [text "Status"]
+                        ]
+                    , H.tr_
+                        []
+                        [ H.td_ [] [text "Matrix homeserver"]
+                        , H.td_ [] [H.a_ [P.href_ "/matrix"] [text "matrix.functor.systems"]]
+                        , H.td_ [] [text "Operational"]
+                        ]
+                    , H.tr_
+                        []
+                        [ H.td_ [] [text "Git forge"]
+                        , H.td_ [] [H.a_ [P.href_ "/code"] [text "code.functor.systems"]]
+                        , H.td_ [] [text "Operational"]
+                        ]
+                    , H.tr_
+                        []
+                        [ H.td_ [] [text "The Commutative Webring"]
+                        , H.td_ [] [H.a_ [] [text "ring.functor.systems"]]
+                        , H.td_ [] [text "Coming soon"]
+                        ]
+                    , H.tr_
+                        []
+                        [ H.td_ [] [text "Attic, a Nix binary cache"]
+                        , H.td_ [] [H.a_ [] [text "cache.functor.systems"]]
+                        , H.td_ [] [text "Tentatively coming"]
+                        ]
+                    , H.tr_
+                        []
+                        [ H.td_ [] [text "Hydra, Nix continuous integration"]
+                        , H.td_ [] [H.a_ [] [text "hydra.functor.systems"]]
+                        , H.td_ [] [text "Tentatively coming"]
+                        ]
+                    , H.tr_
+                        []
+                        [ H.td_ [] [text "Grafana, resource monitoring"]
+                        , H.td_ [] [H.a_ [] [text "status.functor.systems"]]
+                        , H.td_ [] [text "Coming soon"]
+                        ]
+                    ]
+                , text "We also provide "
+                , H.code_ [] [text "*.functor.systems"]
+                , text " subdomains to our members. If you’d like a "
+                , H.code_ [] [text "functor.systems"]
+                , text " subdomain, please see the "
+                , H.a_ [P.href_ "#contact"] [text "contact information"]
+                , text " below."
+                ]
+            , text "Most of our infra is hosted on various homelabs operated by members, running functorOS 25.11 (Spivak), our custom distro based on NixOS 25.11 (Xantusia). See "
+            , H.a_ [] [text "status.functor.systems"]
+            , text " for status and vitals (coming soon)."
+            , H.div_ [P.class_ "theorem"] [text "functor.systems is a project incubator for its members."]
+            , H.div_ [P.class_ "proof"] [text " Following Theorem 1, we provide digital infrastructure for members’ projects as well as technical and community support. Additionally, the organization is suitable for hosting communal projects that make more sense managed and maintained collectively than in a personal account."]
+            , H.h2_ [] [text "Projects"]
+            , text "The following are maintained under the auspices of functor.systems."
             , H.table_
-                [P.class_ "services-table"]
+                [P.class_ "projects-table"]
                 [ H.tr_
                     []
-                    [ H.th_ [] [text "Service"]
+                    [ H.th_ [] [text "Name"]
                     , H.th_ [] [text "URL"]
-                    , H.th_ [] [text "Status"]
+                    , H.th_ [] [text "Description"]
                     ]
                 , H.tr_
                     []
-                    [ H.td_ [] [text "Matrix homeserver"]
-                    , H.td_ [] [H.a_ [P.href_ "/matrix"] [text "matrix.functor.systems"]]
-                    , H.td_ [] [text "Operational"]
+                    [ H.td_ [] [text "eeXiv"]
+                    , H.td_ [] [H.a_ [P.href_ "https://eexiv.functor.systems"] [text "eexiv.functor.systems"]]
+                    , H.td_
+                        []
+                        [ text "A research repository for FIRST Robotics Competition related documents, inspired by the arXiv."
+                        ]
                     ]
                 , H.tr_
                     []
-                    [ H.td_ [] [text "Git forge"]
-                    , H.td_ [] [H.a_ [P.href_ "/code"] [text "code.functor.systems"]]
-                    , H.td_ [] [text "Operational"]
-                    ]
-                , H.tr_
-                    []
-                    [ H.td_ [] [text "The Commutative Webring"]
-                    , H.td_ [] [H.a_ [] [text "ring.functor.systems"]]
-                    , H.td_ [] [text "Coming soon"]
-                    ]
-                , H.tr_
-                    []
-                    [ H.td_ [] [text "Attic, a Nix binary cache"]
-                    , H.td_ [] [H.a_ [] [text "cache.functor.systems"]]
-                    , H.td_ [] [text "Tentatively coming"]
-                    ]
-                , H.tr_
-                    []
-                    [ H.td_ [] [text "Hydra, Nix continuous integration"]
-                    , H.td_ [] [H.a_ [] [text "hydra.functor.systems"]]
-                    , H.td_ [] [text "Tentatively coming"]
-                    ]
-                , H.tr_
-                    []
-                    [ H.td_ [] [text "Grafana, resource monitoring"]
-                    , H.td_ [] [H.a_ [] [text "status.functor.systems"]]
-                    , H.td_ [] [text "Coming soon"]
+                    [ H.td_ [] [text "functorOS"]
+                    , H.td_ [] [H.a_ [P.href_ "https://functor.systems/functorOS"] [text "functor.systems/functorOS"]]
+                    , H.td_
+                        []
+                        [ text "A highly experimental NixOS based Linux distribution."
+                        ]
                     ]
                 ]
-            , text "We also provide "
-            , H.code_ [] [text "*.functor.systems"]
-            , text " subdomains to our members. If you’d like a "
-            , H.code_ [] [text "functor.systems"]
-            , text " subdomain, please see the "
-            , H.a_ [P.href_ "#contact"] [text "contact information"]
-            , text " below."
+            , H.h2_ [] [text "Members"]
+            , H.table_
+                []
+                [ H.tr_
+                    []
+                    [ H.th_ [] [text "User"]
+                    , H.th_ [] [text "Affiliation"]
+                    , H.th_ [] [text "Role"]
+                    ]
+                , H.tr_
+                    []
+                    [ H.td_ [] [H.a_ [P.href_ "https://web.youwen.dev"] [text "Youwen"]]
+                    , H.td_ [] [text "UCSB Math + CS '28. MIT OCλ."]
+                    , H.td_
+                        []
+                        [ text "BDFL, Webmaster, chief NixOps engineer"
+                        ]
+                    ]
+                , H.tr_
+                    []
+                    [ H.td_ [] [H.a_ [P.href_ "https://kaitotlex.systems"] [text "Warren “Kaitotlex”"]]
+                    , H.td_ [] [text "SRVHS '26. MIT OCλ."]
+                    , H.td_
+                        []
+                        [ text "EE hacker, delinquent, inventor"
+                        ]
+                    ]
+                , H.tr_
+                    []
+                    [ H.td_ [] [H.a_ [P.href_ "https://monadi.cc"] [text "Ananth"]]
+                    , H.td_ [] [text "MIT Math w/ CS '28. MIT OCλ."]
+                    , H.td_
+                        []
+                        [ text "Intrepid Haskellian, undergrad category theorist, associate NixOps engineer"
+                        ]
+                    ]
+                , H.tr_
+                    []
+                    [ H.td_ [] [text "Anthony"]
+                    , H.td_ [] [text "MIT EECS '28. MIT OCλ."]
+                    , H.td_
+                        []
+                        [ text "EE hacker, delinquent, inventor"
+                        ]
+                    ]
+                , H.tr_
+                    []
+                    [ H.td_ [] [text "Colin"]
+                    , H.td_ [] [text "MIT EE + Physics '26. MIT OCλ."]
+                    , H.td_
+                        []
+                        [ text "javascript framework connoisseur, forklift certified"
+                        ]
+                    ]
+                , H.tr_
+                    []
+                    [ H.td_ [] [H.a_ [P.href_ "https://github.com/Nluo923"] [text "Nicholas “nluo”"]]
+                    , H.td_ [] [text "Berkeley EECS '29. MIT OCλ."]
+                    , H.td_
+                        []
+                        [ text "osu gamer, yuri enjoyer"
+                        ]
+                    ]
+                ]
+            , text "There are no membership dues—rather, members are encouraged to donate infrastructure and time as available."
+            , H.h2_ [P.id_ "contact"] [text "Contact and join"]
+            , H.p_
+                []
+                [ text "It is sufficient but not necessary to be a member of functor.systems to use our infrastructure. That is, all functor.systems members can freely use or request infrastructure, and in addition friends and other non-members "
+                , H.b_ [] [text "may"]
+                , text " be given access upon request."
+                ]
+            , H.p_
+                []
+                [ text "If you’d like to request access to any infrastructure—or a membership—please contact the webmaster: "
+                , H.code_ [] [H.a_ [P.href_ "mailto:youwen@functor.systems"] [text "youwen@functor.systems"]]
+                ]
+            , H.p_ [] [text "In general, any friends of existing members or anyone with a reasonable interest in our projects will be granted membership and/or infra access upon request."]
+            , H.h2_ [] ["Miscellany"]
+            , H.p_
+                []
+                [ text "This website was written in Haskell in the "
+                , H.a_ [P.href_ "https://haskell-miso.org/"] [text "miso"]
+                , text " web framework, and transpiled to JavaScript via the GHCjs backend."
+                ]
+            , H.p_
+                []
+                [ text "Suggest an edit to this page on "
+                , H.a_ [P.href_ "https://code.functor.systems/functor.systems/website/src/branch/main/app/Main.hs", P.target_ "_blank"] [text "code.functor.systems"]
+                , text ". Note that a login is required—please request an account through the contact information above if you don’t have one. Alternatively, clone the repository and send patches via email to the webmaster."
+                ]
             ]
-        , text "Most of our infra is hosted on various homelabs operated by members, running functorOS 25.11 (Spivak), our custom distro based on NixOS 25.11 (Xantusia). See "
-        , H.a_ [] [text "status.functor.systems"]
-        , text " for status and vitals (coming soon)."
-        , H.div_ [P.class_ "theorem"] [text "functor.systems is a project incubator for its members."]
-        , H.div_ [P.class_ "proof"] [text " Following Theorem 1, we provide digital infrastructure for members’ projects as well as technical and community support. Additionally, the organization is suitable for hosting communal projects that make more sense managed and maintained collectively than in a personal account."]
-        , H.h2_ [] [text "Projects"]
-        , text "The following are maintained under the auspices of functor.systems."
-        , H.table_
-            [P.class_ "projects-table"]
-            [ H.tr_
-                []
-                [ H.th_ [] [text "Name"]
-                , H.th_ [] [text "URL"]
-                , H.th_ [] [text "Description"]
-                ]
-            , H.tr_
-                []
-                [ H.td_ [] [text "eeXiv"]
-                , H.td_ [] [H.a_ [P.href_ "https://eexiv.functor.systems"] [text "eexiv.functor.systems"]]
-                , H.td_
-                    []
-                    [ text "A research repository for FIRST Robotics Competition related documents, inspired by the arXiv."
-                    ]
-                ]
-            , H.tr_
-                []
-                [ H.td_ [] [text "functorOS"]
-                , H.td_ [] [H.a_ [P.href_ "https://functor.systems/functorOS"] [text "functor.systems/functorOS"]]
-                , H.td_
-                    []
-                    [ text "A highly experimental NixOS based Linux distribution."
-                    ]
-                ]
-            ]
-        , H.h2_ [] [text "Members"]
-        , H.table_
+    the404 =
+        H.div_
             []
-            [ H.tr_
-                []
-                [ H.th_ [] [text "User"]
-                , H.th_ [] [text "Affiliation"]
-                , H.th_ [] [text "Role"]
-                ]
-            , H.tr_
-                []
-                [ H.td_ [] [H.a_ [P.href_ "https://web.youwen.dev"] [text "Youwen"]]
-                , H.td_ [] [text "UCSB Math + CS '28. MIT OCλ."]
-                , H.td_
-                    []
-                    [ text "BDFL, Webmaster, chief NixOps engineer"
-                    ]
-                ]
-            , H.tr_
-                []
-                [ H.td_ [] [H.a_ [P.href_ "https://kaitotlex.systems"] [text "Warren “Kaitotlex”"]]
-                , H.td_ [] [text "SRVHS '26. MIT OCλ."]
-                , H.td_
-                    []
-                    [ text "EE hacker, delinquent, inventor"
-                    ]
-                ]
-            , H.tr_
-                []
-                [ H.td_ [] [H.a_ [P.href_ "https://monadi.cc"] [text "Ananth"]]
-                , H.td_ [] [text "MIT Math w/ CS '28. MIT OCλ."]
-                , H.td_
-                    []
-                    [ text "Intrepid Haskellian, undergrad category theorist, associate NixOps engineer"
-                    ]
-                ]
-            , H.tr_
-                []
-                [ H.td_ [] [text "Anthony"]
-                , H.td_ [] [text "MIT EECS '28. MIT OCλ."]
-                , H.td_
-                    []
-                    [ text "EE hacker, delinquent, inventor"
-                    ]
-                ]
-            , H.tr_
-                []
-                [ H.td_ [] [text "Colin"]
-                , H.td_ [] [text "MIT EE + Physics '26. MIT OCλ."]
-                , H.td_
-                    []
-                    [ text "javascript framework connoisseur, forklift certified"
-                    ]
-                ]
-            , H.tr_
-                []
-                [ H.td_ [] [H.a_ [P.href_ "https://github.com/Nluo923"] [text "Nicholas “nluo”"]]
-                , H.td_ [] [text "Berkeley EECS '29. MIT OCλ."]
-                , H.td_
-                    []
-                    [ text "osu gamer, yuri enjoyer"
-                    ]
-                ]
+            [ text "the 404 :("
+            , H.button_ [E.onClick goHome] [text "go home"]
             ]
-        , text "There are no membership dues—rather, members are encouraged to donate infrastructure and time as available."
-        , H.h2_ [P.id_ "contact"] [text "Contact and join"]
-        , H.p_
-            []
-            [ text "It is sufficient but not necessary to be a member of functor.systems to use our infrastructure. That is, all functor.systems members can freely use or request infrastructure, and in addition friends and other non-members "
-            , H.b_ [] [text "may"]
-            , text " be given access upon request."
-            ]
-        , H.p_
-            []
-            [ text "If you’d like to request access to any infrastructure—or a membership—please contact the webmaster: "
-            , H.code_ [] [H.a_ [P.href_ "mailto:youwen@functor.systems"] [text "youwen@functor.systems"]]
-            ]
-        , H.p_ [] [text "In general, any friends of existing members or anyone with a reasonable interest in our projects will be granted membership and/or infra access upon request."]
-        , H.h2_ [] ["Miscellany"]
-        , H.p_
-            []
-            [ text "This website was written in Haskell in the "
-            , H.a_ [P.href_ "https://haskell-miso.org/"] [text "miso"]
-            , text " web framework, and transpiled to JavaScript via the GHCjs backend."
-            ]
-        , H.p_
-            []
-            [ text "Suggest an edit to this page on "
-            , H.a_ [P.href_ "https://code.functor.systems/functor.systems/website/src/branch/main/app/Main.hs", P.target_ "_blank"] [text "code.functor.systems"]
-            , text ". Note that a login is required—please request an account through the contact information above if you don’t have one. Alternatively, clone the repository and send patches via email to the webmaster."
-            ]
-        ]
+
+    matrix (_ :: Model) = H.div_ [] [H.p_ [] [text "blah"]]
 
 ----------------------------------------------------------------------------
