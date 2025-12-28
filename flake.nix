@@ -55,13 +55,17 @@
         packages.default = pkgs.stdenvNoCC.mkDerivation {
           name = "website";
 
-          src = ./static;
+          src = ./.;
+
+          nativeBuildInputs = [ pkgs.swc ];
 
           buildPhase = ''
             mkdir -p $out
-            cp -r * $out
+            cp -r ./static/* $out
 
-            cp -L ${flake.packages."javascript-unknown-ghcjs:website:exe:website"}/bin/website $out/all.js
+            swc compile ${
+              flake.packages."javascript-unknown-ghcjs:website:exe:website"
+            }/bin/website --out-file $out/all.js --config-file ./.swcrc
           '';
         };
         # packages.default = builtins.trace (pkgs.misoProject.flake { }).packages "";
