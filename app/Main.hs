@@ -259,6 +259,15 @@ viewModel x =
                     [ text "osu gamer, yuri enjoyer"
                     ]
                 ]
+            , H.tr_
+                []
+                [ H.td_ [] [H.a_ [P.href_ "https://a.rvind.cc"] [text "Arvind"]]
+                , H.td_ [] [text "MVHS/DVC '27. MIT OCλ."]
+                , H.td_
+                    []
+                    [ text "Interested in non-linear dynamics, language shift, & transformational music theory. Rustacean."
+                    ]
+                ]
             ]
         , text "There are no membership dues—rather, members are encouraged to donate infrastructure and time as available."
         , H.h2_ [P.id_ "contact"] [text "Contact and join"]
