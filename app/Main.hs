@@ -238,7 +238,7 @@ viewModel x =
                 , H.td_ [] [text "MIT EECS '28. MIT OCλ."]
                 , H.td_
                     []
-                    [ text "EE hacker, delinquent, inventor"
+                    [ text "plays age of empires"
                     ]
                 ]
             , H.tr_
