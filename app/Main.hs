@@ -234,8 +234,17 @@ viewModel x =
                 ]
             , H.tr_
                 []
-                [ H.td_ [] [text "Anthony"]
+                [ H.td_ [] [text "Anthony D."]
                 , H.td_ [] [text "MIT EECS '28. MIT OCλ."]
+                , H.td_
+                    []
+                    [ text "plays age of empires"
+                    ]
+                ]
+            , H.tr_
+                []
+                [ H.td_ [] [text "Anthony W."]
+                , H.td_ [] [text "MIT Math + CS '26."]
                 , H.td_
                     []
                     [ text "plays age of empires"
