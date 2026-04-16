@@ -217,7 +217,7 @@ viewModel x =
             , H.tr_
                 []
                 [ H.td_ [] [H.a_ [P.href_ "https://kaitotlex.systems"] [text "Warren “Kaitotlex”"]]
-                , H.td_ [] [text "SRVHS '26. MIT OCλ."]
+                , H.td_ [] [text "SJSU '30. MIT OCλ."]
                 , H.td_
                     []
                     [ text "EE hacker, delinquent, inventor"
@@ -244,10 +244,10 @@ viewModel x =
             , H.tr_
                 []
                 [ H.td_ [] [text "Anthony W."]
-                , H.td_ [] [text "MIT Math + CS '26."]
+                , H.td_ [] [text "MIT Math + CS '26, MEng '27."]
                 , H.td_
                     []
-                    [ text "plays age of empires"
+                    [ text "Lean 4 and formal verification enthusiast."
                     ]
                 ]
             , H.tr_
