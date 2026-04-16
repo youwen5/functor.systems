@@ -78,12 +78,12 @@ viewModel x =
         [ H.h1_
             []
             [ H.img_
-                [ P.src_ "https://code.functor.systems/functor.systems/identity/raw/branch/main/assets/canonical/hi-res-transparent-text.webp"
+                [ P.src_ "img/hi-res-transparent-text.webp"
                 , P.alt_ "functor.systems logo, a torus with three arrows pointing across"
                 , P.class_ "main-logo light-only"
                 ]
             , H.img_
-                [ P.src_ "https://code.functor.systems/functor.systems/identity/raw/branch/main/assets/canonical/hi-res-transparent-text-dark.webp"
+                [ P.src_ "img/hi-res-transparent-text-dark.webp"
                 , P.alt_ "functor.systems logo, a torus with three arrows pointing across"
                 , P.class_ "main-logo dark-only"
                 ]
