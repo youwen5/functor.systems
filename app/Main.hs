@@ -208,7 +208,7 @@ viewModel x =
             , H.tr_
                 []
                 [ H.td_ [] [H.a_ [P.href_ "https://web.youwen.dev"] [text "Youwen"]]
-                , H.td_ [] [text "UCSB Math + CS '28. MIT OCλ."]
+                , H.td_ [] [text "Berkeley Math + CS '28. MIT OCλ."]
                 , H.td_
                     []
                     [ text "BDFL, Webmaster, chief NixOps engineer"
@@ -235,7 +235,7 @@ viewModel x =
             , H.tr_
                 []
                 [ H.td_ [] [text "Anthony D."]
-                , H.td_ [] [text "MIT EECS '28. MIT OCλ."]
+                , H.td_ [] [text "Building. MIT EECS (on leave). MIT OCλ."]
                 , H.td_
                     []
                     [ text "plays age of empires"
