@@ -247,7 +247,7 @@ viewModel x =
                 , H.td_ [] [text "MIT Math + CS '26, MEng '27."]
                 , H.td_
                     []
-                    [ text "Lean 4 and formal verification enthusiast."
+                    [ text "plays age of empires"
                     ]
                 ]
             , H.tr_
