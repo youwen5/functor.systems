@@ -1,0 +1,41 @@
+h1 {
+    display: none;
+}
+
+img {
+    max-width: 400px;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    aspect-ratio: 1/1;
+}
+
+.services-table {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+.projects-table {
+    margin-top: 10px;
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+.qed {
+    float: right;
+}
+
+.definition>p,
+.theorem>p,
+.proof>p {
+    display: inline;
+    margin: 0;
+}
+
+@media all and (min-width: 800px) {
+    body {
+        font-size: 1.2rem;
+    }
+}

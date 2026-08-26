@@ -10,5 +10,6 @@ Just do:
 nix build
 ```
 
-Note this takes quite a while as you will have to build GHC from source
-targeting a JS backend. Binary cache soon.
+Note this takes quite a while as you will have to build Lean from source. Binary cache soon.
+
+Alternatively, if you already have Lean installed run `lake exe build-site`.

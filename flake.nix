@@ -1,95 +1,38 @@
 {
   description = "divinely inspired nix template";
-  inputs.haskellNix.url = "git+https://code.functor.systems/youwen/haskell.nix";
-  inputs.nixpkgs.follows = "haskellNix/nixpkgs-unstable";
-  inputs.flake-utils.url = "github:numtide/flake-utils";
+
+  # TODO: Change back to nixos-unstable once it gets lean4 v4.33.1
+  inputs.nixpkgs.url = "github:jthulhu/nixpkgs/lean-update-4.32";
+
   outputs =
     {
       self,
       nixpkgs,
       flake-utils,
-      haskellNix,
     }:
-    flake-utils.lib.eachSystem [ "x86_64-linux" "x86_64-darwin" ] (
-      system:
-      let
-        overlays = [
-          haskellNix.overlay
-          (final: _prev: {
-            # stdenv = _prev.lib.mkMerge [
-            #   { hostPlatform.extensions.executable = ".jsexe"; }
-            #   _prev.stdenv
-            # ];
-            # This overlay adds our project to pkgs
-            misoProject = final.haskell-nix.project' {
-              src = ./.;
-              compiler-nix-name = "ghc9122";
-              # This is used by `nix develop .` to open a shell for use with
-              # `cabal`, `hlint` and `haskell-language-server`
-              shell.tools = {
-                cabal = { };
-                hlint = { };
-                haskell-language-server = { };
-                cabal-gild = { };
-                fourmolu = { };
-              };
-              # Non-Haskell shell tools go here
-              shell.buildInputs = with pkgs; [
-                nixpkgs-fmt
-                just
-                nodejs
-                live-server
-              ];
-
-              # This adds `js-unknown-ghcjs-cabal` to the shell.
-              shell.crossPlatforms = p: [ p.ghcjs ];
-            };
-          })
-        ];
-        pkgs = import nixpkgs {
-          inherit system overlays;
-          inherit (haskellNix) config;
+    let
+      systems = [
+        "x86_64-linux"
+        "aarch64-linux"
+        "x86_64-darwin"
+      ];
+      forAllSystems = f: nixpkgs.lib.genAttrs systems (system: f nixpkgs.legacyPackages.${system});
+    in
+    {
+      packages = forAllSystems (pkgs: {
+        default = pkgs.leanPackages.buildLakePackage {
+          pname = "website";
+          version = "0.1";
+          src = self;
+          lakeHash = "sha256-QXfi9uPeM1Gmxle9mFoHaiLvDOWjUxxsfIbzbjwOnwA=";
+          postBuild = ".lake/build/bin/build-site";
+          installPhase = ''
+            runHook preInstall
+            cp -r _site $out
+            runHook postInstall
+          '';
         };
-        flake = pkgs.misoProject.flake {
-          # This adds support for `nix build .#javascript-unknown-ghcjs:app:exe:app`
-          crossPlatforms = p: [ p.ghcjs ];
-        };
-      in
-      flake
-      // {
-        packages = flake.packages // {
-          default = pkgs.stdenvNoCC.mkDerivation {
-            name = "website";
-
-            src = ./.;
-
-            nativeBuildInputs = [
-              pkgs.swc
-              flake.packages."website:exe:styles"
-            ];
-
-            buildPhase = ''
-              mkdir -p $out
-              cp -r ./static/* $out
-
-              styles "$out/rendered.css"
-
-              swc compile ${
-                flake.packages."javascript-unknown-ghcjs:website:exe:website"
-              }/bin/website --out-file $out/all.js --config-file ./.swcrc
-            '';
-          };
-        };
-        # packages.default = builtins.trace (pkgs.misoProject.flake { }).packages "";
-        # Built by `nix build .`
-        # packages = {
-        #   wasm = flake.packages."wasi32:app:exe:app";
-        #   ghcjs = flake.packages."javascript-unknown-ghcjs:app:exe:app";
-        # };
-      }
-    );
-  nixConfig = {
-    extra-substituters = [ "https://cache.iog.io" ];
-    extra-trusted-public-keys = [ "hydra.iohk.io:f/Ea+s+dFdN+3Y/G+FDgSq+a5NEWhJGzdjvKNGv0/EQ=" ];
-  };
+      });
+      formatter = forAllSystems (pkgs: pkgs.nixfmt-tree);
+    };
 }
