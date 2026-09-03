@@ -38,7 +38,7 @@ We operate the following.
 We also provide `*.functor.systems` subdomains to our members. If you'd like a `functor.systems` subdomain, please see the [contact information](#contact) below.
 ::::
 
-Most of our infra is hosted on various homelabs operated by members, running functorOS 25.11 (Spivak), our custom distro based on NixOS 25.11 (Xantusia). See status.functor.systems for status and vitals (coming soon).
+Most of our infra is hosted on various homelabs operated by members, running functorOS 26.05 (Zardini), our custom distro based on NixOS 26.05 (Yarara). See status.functor.systems for status and vitals (coming soon).
 
 :::htmlDiv (class := "theorem")
 functor.systems is a project incubator for its members.
