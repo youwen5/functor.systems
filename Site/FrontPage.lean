@@ -64,12 +64,12 @@ The following are maintained under the auspices of functor.systems.
 :::table
 | User | Affiliation | Role |
 |---|---|---|
-| [Youwen](https://web.youwen.dev) | Berkeley Math + CS '28. MIT OCλ. | BDFL, Webmaster, chief NixOps engineer |
-| [Warren "Kaitotlex"](https://kaitotlex.systems) | SJSU '30. MIT OCλ. | EE hacker, delinquent, inventor |
-| [Ananth](https://monadi.cc) | MIT Math w/ CS '28. MIT OCλ. | Intrepid Haskellian, undergrad category theorist, associate NixOps engineer |
-| Anthony D. | Building. MIT EECS (on leave). MIT OCλ. | plays age of empires |
+| [Youwen 🎈](https://web.youwen.dev) | Berkeley Math + CS '28. MIT OCλ. | Larper-in-chief, Webmaster, chief NixOps engineer |
+| [Warren "KaitoTLex" 🎈](https://web.kaitotlex.systems) | Hacker at a startup. Dropped out of SJSU (rank #67 public university). MIT OCλ. | EE hacker, delinquent, inventor |
+| [Ananth 🎈](https://monadi.cc) | MIT Math w/ CS '28. MIT OCλ. | Intrepid Haskellian, undergrad category theorist, associate NixOps engineer |
+| Anthony D. | Founder mode. MIT EECS (on leave). MIT OCλ. | plays age of empires |
 | Anthony W. | MIT Math + CS '26, MEng '27. | plays age of empires |
-| Colin | MIT EE + Physics '26. MIT OCλ. | javascript framework connoisseur, forklift certified |
+| Colin 🎈| MIT EE + Physics '26. MIT OCλ. | javascript framework connoisseur, forklift certified |
 | [Nicholas "nluo"](https://github.com/Nluo923) | Berkeley EECS '29. MIT OCλ. | osu gamer, yuri enjoyer |
 | [Arvind](https://a.rvind.cc) | MVHS/DVC '27. MIT OCλ. | Interested in non-linear dynamics, language shift, & transformational music theory. Rustacean. |
 :::
